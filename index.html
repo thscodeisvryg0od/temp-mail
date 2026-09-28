@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="description" content="Minimal, hızlı ve güvenli geçici e-posta servisi." />
+  <title>TempMail — Geçici E-posta</title>
+
+  <!-- Tema flash önleyici -->
+  <script>
+    (function () {
+      try {
+        var s = JSON.parse(localStorage.getItem("tm_settings") || "{}");
+        var t = s.theme || "auto";
+        var actual = t === "auto"
+          ? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+          : t;
+        document.documentElement.setAttribute("data-theme", actual);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
+  <link rel="icon" href="assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <div class="bg-gradient"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">✉</div>
+      <span>TempMail</span>
+    </div>
+    <div class="actions">
+      <button id="soundBtn" class="icon-btn" data-i18n-title="sound" title="Ses">
+        <span id="soundIcon">🔔</span>
+      </button>
+      <button id="themeBtn" class="icon-btn" data-i18n-title="theme" title="Tema">
+        <span id="themeIcon">🌗</span>
+      </button>
+      <button id="refreshBtn" class="icon-btn" data-i18n-title="refresh" title="Yenile">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 6v3l4-4-4-4v3a7 7 0 0 0-7 7h2a5 5 0 0 1 5-5zm6 6a5 5 0 0 1-5 5v-3l-4 4 4 4v-3a7 7 0 0 0 7-7h-2z"/></svg>
+      </button>
+      <select id="langSelect" class="lang-select" aria-label="Language">
+        <option value="tr">🇹🇷 TR</option>
+        <option value="en">🇬🇧 EN</option>
+        <option value="de">🇩🇪 DE</option>
+        <option value="fr">🇫🇷 FR</option>
+        <option value="es">🇪🇸 ES</option>
+        <option value="it">🇮🇹 IT</option>
+      </select>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1 data-i18n="heroTitle">Geçici E-posta Adresiniz</h1>
+      <p class="subtitle" data-i18n="heroSub">Spam yok. Kayıt yok. Saniyeler içinde hazır.</p>
+    </section>
+
+    <section class="card mail-card">
+      <label class="label" data-i18n="yourEmail">E-posta adresiniz</label>
+      <div class="mail-row">
+        <input id="emailBox" type="text" readonly value="…" />
+        <button id="copyBtn" class="btn primary" data-i18n="copy">Kopyala</button>
+      </div>
+      <div class="mail-row second">
+        <button id="newBtn" class="btn ghost" data-i18n="newAddress">Yeni Adres</button>
+        <button id="qrBtn" class="btn ghost" data-i18n="qrCode">QR Kod</button>
+      </div>
+      <div class="status-line">
+        <div class="status" id="status" data-i18n="autoRefresh">Otomatik yenileme aktif</div>
+        <div class="age" id="ageBox">⏱ —</div>
+      </div>
+    </section>
+
+    <section class="card inbox">
+      <div class="inbox-header">
+        <h2 data-i18n="inbox">Gelen Kutusu</h2>
+        <div class="inbox-tools">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+            <input id="searchBox" type="search" data-i18n-placeholder="search" placeholder="Ara…" />
+          </div>
+          <span class="badge" id="countBadge">0</span>
+        </div>
+      </div>
+      <div id="messages" class="messages">
+        <div class="empty" data-i18n="emptyInbox">Henüz e-posta yok. Adresinizi paylaşın ve bekleyin.</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span data-i18n="shortcuts">Kısayollar:</span>
+      <kbd>R</kbd> <kbd>C</kbd> <kbd>N</kbd> <kbd>/</kbd> <kbd>Esc</kbd>
+    </footer>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- Mesaj Modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      <h3 id="modalSubject"></h3>
+      <div class="modal-meta" id="modalFrom"></div>
+      <div id="attachments" class="attachments hidden"></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="btn ghost danger" id="deleteBtn" data-i18n="delete">Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Modal -->
+  <div id="qrModal" class="modal hidden">
+    <div class="modal-content qr-content">
+      <button class="modal-close" id="qrClose">✕</button>
+      <h3 data-i18n="qrTitle">QR Kod ile Paylaş</h3>
+      <div id="qrContainer"></div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" id="settingsClose">✕</button>
+      <h3 data-i18n="settings">Ayarlar</h3>
+      <div class="settings-list">
+        <label class="setting-row">
+          <span data-i18n="theme">Tema</span>
+          <select id="themeSelect" class="lang-select">
+            <option value="dark" data-i18n="themeDark">Koyu</option>
+            <option value="light" data-i18n="themeLight">Açık</option>
+            <option value="auto" data-i18n="themeAuto">Otomatik</option>
+          </select>
+        </label>
+        <label class="setting-row">
+          <span data-i18n="sound">Bildirim Sesi</span>
+          <input type="checkbox" id="soundToggle" class="switch" />
+        </label>
+        <label class="setting-row">
+          <span data-i18n="notifications">Masaüstü Bildirimi</span>
+          <input type="checkbox" id="desktopToggle" class="switch" />
+        </label>
+        <label class="setting-row">
+          <span data-i18n="refreshEvery">Yenileme Aralığı</span>
+          <select id="refreshSelect" class="lang-select">
+            <option value="5000">5s</option>
+            <option value="10000">10s</option>
+            <option value="30000">30s</option>
+            <option value="60000">60s</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/settings.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/notify.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
