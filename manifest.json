@@ -1,0 +1,31 @@
+{
+  "name": "TempMail — Geçici E-posta",
+  "short_name": "TempMail",
+  "description": "Minimal, hızlı ve güvenli geçici e-posta servisi.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f0f17",
+  "theme_color": "#6366f1",
+  "lang": "tr",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Yeni Adres",
+      "short_name": "Yeni",
+      "url": "./index.html?action=new",
+      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Gelen Kutusu",
+      "short_name": "Gelen",
+      "url": "./index.html",
+      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
